@@ -18,12 +18,12 @@ class Matrix {
 
         int size(){ return rows_ * cols_ ;}
 
-        float operator[](int n) const {
+        float& operator[](int n) {
             assert(0 <= n && n < size());
             return data_[n] ;
         }
 
-        float& operator[](int n){
+        const float& operator[](int n) const {
             assert(0 <= n && n < size());
             return data_[n] ;
         }
