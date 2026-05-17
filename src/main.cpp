@@ -124,7 +124,7 @@ Matrix mul_mat_3(const Matrix& A, const Matrix& B){
     return C;
 }
 
-//SIMD AVX2 256ビット　Float（32ビット）8個同時計算
+//SIMD AVX2 データパッキング
 Matrix mul_mat_4(const Matrix& A, const Matrix& B){
     int N, K, M;
     N = A.get_row();
@@ -487,9 +487,7 @@ void measure_mat(const Matrix& A, const Matrix& B, const std::string& function_n
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double, std::milli> elapsed = end - start;
-    std::cout << function_name << " ";
-    std::cout << elapsed.count() << "ms" << std::endl;
-
+    printf("%s %8.2fms\n", function_name.c_str(), elapsed.count());
 }
 
 #define MEASURE_MAT(A, B, func) measure_mat(A, B, #func, func)
@@ -519,12 +517,12 @@ int main(){
     B.set_data(e);
     
     // MEASURE_MAT(A, B, mul_mat_0);
-    // MEASURE_MAT(A, B, mul_mat_1);
-    // MEASURE_MAT(A, B, mul_mat_2);
+    MEASURE_MAT(A, B, mul_mat_1);
+    MEASURE_MAT(A, B, mul_mat_2);
     MEASURE_MAT(A, B, mul_mat_3);
-    // MEASURE_MAT(A, B, mul_mat_4);
-    // MEASURE_MAT(A, B, mul_mat_5);
-    // MEASURE_MAT(A, B, mul_mat_6);
+    MEASURE_MAT(A, B, mul_mat_4);
+    MEASURE_MAT(A, B, mul_mat_5);
+    MEASURE_MAT(A, B, mul_mat_6);
     MEASURE_MAT(A, B, mul_mat_7);
     MEASURE_MAT(A, B, mul_mat_8);
     return 0;
