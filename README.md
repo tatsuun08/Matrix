@@ -34,7 +34,8 @@ for (int i=0; i<N; i++){
     }
 }
 ```
-実行時間：20811.59ms
+M=4096, K=4096, N=4096では時間がかかりすぎるため、M=1024, K=1024, N=1024とします。
+実行時間：2215.93ms
 </details>
 <details open><summary>mul_mat_1 メモリアクセスの改善</summary>
 mul_mat_0のメモリアクセスを改善したプログラム
@@ -45,32 +46,37 @@ A[K * i + k] 同様にして i < k <br>
 B[M * k + j] 同様にして k < j <br>
 したがって，ループの順番は i < k < jのように設定することで，メモリアクセスが改善されます．<br>
 
-実行時間： 6240.82ms mul_mat_0よりも3.33倍の高速化
+実行時間： 452.05ms(M=1024, K=1024, N=1024) mul_mat_0よりも4.90倍の高速化<br>
+このコードのM=4096, K=4096, N=4096をベースラインとします。<br>
+実行時間：29450.76ms
 </details><br>
 
 <details open><summary>mul_mat_2 マルチスレッド化</summary>
 マルチスレッド化するためにここではOpenMPを用いています．for文の前に#pragma omp parallel forをつけることで，マルチスレッド化が容易に行えます．スレッド数はOMP_NUM_THEREADSを参照します．実よりもでは，Pコア6個，Eコア8個の14個を搭載したCPUで行いました．各コアに計算を等分に割り当てると処理の遅いEコアの処理を待つことになってしまうため，処理が終わったコアに処理を割り当てています（動的スケジューリング）．<br>
-実行時間：302.58ms mul_mat_1から20.66倍の高速化
+実行時間：5449.62ms mul_mat_1から5.4倍の高速化
 </details><br>
 
 <details open><summary>mul_mat_3 SIMDの導入</summary>
 SIMDは，一命令で複数データを同時に扱うことができます．ここでは8個の単精度浮動小数点（float）の計算ができるAVX2を用いています．<br>
 ※avx2は256ビットを同時に処理でき，float(32bit)　256/32=8 個の計算を1命令で行える<br>
-実行時間：173.98ms mul_mat_2より1.73倍高速化
+実行時間：2718.25ms mul_mat_2より2.00倍高速化
 </details><br>
 
 <details open><summary>mul_mat_4 データの詰め替え/summary>
 </details><br>
-mul_mat_4   155.39ms
+データのパッキングを行い、転置行列btを作成して、SIMDでロード・水平加算ができるように変更を行った。計算時間は、パッキングのオーバーヘッド＋SIMDによる計算時間の高速化となるが、mul_mat_3と比較して分かるように、パッキングによるオーバーヘッドよりもSIMDでのロード時間の短縮のほうが支配的ということが確認できます。<br>
+mul_mat_4   2228.31ms mul_mat_3と比較して、1.22倍の高速化
 <details open><summary>mul_mat_5 キャッシュブロッキング</summary>
-mul_mat_5   227.24ms
+DRAMにアクセスする回数を削減するために、計算する部位を小さく分割してCPUのキャッシュに収めることでデータロード時間が削減され、処理時間が短くなることが確認できます。<br>
+mul_mat_5   922.77ms　mul_mat_3と比較して2.94倍の高速化
 </details><br>
 <details open><summary>mul_mat_6 ループアンローリング</summary>
-mul_mat_6   133.69ms
+このプログラムはmul_mat_3を改良しているため、キャッシュブロッキングはなしで、ループアンローリングのみ行っています。ループアンローリングはCPUにという際されている計算レジスタをフルに使うことやfor文による条件分岐を削減することで計算を高速化できます。<br>
+mul_mat_6   1694.73ms
 </details><br>
 <details open><summary>mul_mat_7 キャッシュブロッキング＋ループアンローリング</summary>
-mul_mat_7   148.36ms
+mul_mat_7   779.67ms
 </details><br>
 <details open><summary>mul_mat_8 GEBPアルゴリズム</summary>
-mul_mat_8   214.72ms
+mul_mat_8   659.21ms
 </details><br>
