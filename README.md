@@ -62,10 +62,11 @@ SIMDは，一命令で複数データを同時に扱うことができます．�
 実行時間：2718.25ms mul_mat_2より2.00倍高速化
 </details><br>
 
-<details open><summary>mul_mat_4 データの詰め替え/summary>
-</details><br>
+<details open><summary>mul_mat_4 データの詰め替え</summary>
 データのパッキングを行い、転置行列btを作成して、SIMDでロード・水平加算ができるように変更を行った。計算時間は、パッキングのオーバーヘッド＋SIMDによる計算時間の高速化となるが、mul_mat_3と比較して分かるように、パッキングによるオーバーヘッドよりもSIMDでのロード時間の短縮のほうが支配的ということが確認できます。<br>
 mul_mat_4   2228.31ms mul_mat_3と比較して、1.22倍の高速化
+</details><br>
+
 <details open><summary>mul_mat_5 キャッシュブロッキング</summary>
 DRAMにアクセスする回数を削減するために、計算する部位を小さく分割してCPUのキャッシュに収めることでデータロード時間が削減され、処理時間が短くなることが確認できます。<br>
 mul_mat_5   922.77ms　mul_mat_3と比較して2.94倍の高速化
@@ -75,8 +76,10 @@ mul_mat_5   922.77ms　mul_mat_3と比較して2.94倍の高速化
 mul_mat_6   1694.73ms
 </details><br>
 <details open><summary>mul_mat_7 キャッシュブロッキング＋ループアンローリング</summary>
+キャッシュブロッキングとループアンローリングを用いて，CPUキャッシュレジスタを効率的に扱いうことで高速化できていることが確認できます．
 mul_mat_7   779.67ms
 </details><br>
 <details open><summary>mul_mat_8 GEBPアルゴリズム</summary>
+BLASライブラリで使われているGEBPアルゴリズムを用いると，mul_mat_7よりも高速になることが確認できる．これは，行列をキャッシュに格納できるサイズに分割し，キャッシュに常駐させることでCPUの理論性能に近づけている．
 mul_mat_8   659.21ms
 </details><br>
